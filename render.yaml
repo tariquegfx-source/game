@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: realgame-web
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: realgame-db
+          property: connectionString
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SPORTMONKS_API_TOKEN
+        sync: false
+
+databases:
+  - name: realgame-db
+    plan: basic-256mb
+    databaseName: realgame
+    user: realgame

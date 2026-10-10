@@ -1,0 +1,31 @@
+services:
+  app:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://realgame:${POSTGRES_PASSWORD}@db:5432/realgame
+      PGSSL: disable
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SPORTMONKS_API_TOKEN: ${SPORTMONKS_API_TOKEN:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: realgame
+      POSTGRES_USER: realgame
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: ["realgame_pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U realgame -d realgame"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+volumes:
+  realgame_pgdata:
